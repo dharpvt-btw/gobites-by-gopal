@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "node backend/server.js",
+    "postinstall": "npm rebuild sqlite3",
     "dev": "node backend/server.js",
     "seed": "node backend/database/seed.js"
   },
