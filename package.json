@@ -4,6 +4,9 @@
   "description": "Smart Fast Food Ordering & Notification System",
   "main": "backend/server.js",
   "type": "commonjs",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node backend/server.js",
