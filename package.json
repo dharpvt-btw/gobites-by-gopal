@@ -1,0 +1,18 @@
+{
+  "name": "smart-fast-food-ordering-system",
+  "version": "1.0.0",
+  "description": "Smart Fast Food Ordering & Notification System",
+  "main": "backend/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "seed": "node backend/database/seed.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "sqlite3": "^5.1.7",
+    "dotenv": "^16.4.5",
+    "twilio": "^5.0.4"
+  }
+}

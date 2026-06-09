@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gobites by Gopal Admin - Restaurant Control Panel</title>
+  <link rel="stylesheet" href="admin.css">
+  <!-- Chart.js CDN for premium analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="admin-wrapper">
+
+    <!-- Left Navigation Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.5 10.5C17.5 13.5355 15.0355 16 12 16C8.96447 16 6.5 13.5355 6.5 10.5C6.5 7.46447 12 2 12 2C12 2 17.5 7.46447 17.5 10.5Z" fill="#FF6B00"/>
+        </svg>
+        Gobites<span>by Gopal</span>
+      </div>
+
+      <nav style="flex-grow: 1;">
+        <ul class="sidebar-menu">
+          <li>
+            <button class="sidebar-menu-btn active" id="menu-btn-orders" data-view="dashboard">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
+              Order Queue
+            </button>
+          </li>
+          <li>
+            <button class="sidebar-menu-btn" id="menu-btn-reports" data-view="reports">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Reports & Analytics
+            </button>
+          </li>
+          <li>
+            <button class="sidebar-menu-btn" id="menu-btn-menu" data-view="menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-dasharray="none" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              Menu Management
+            </button>
+          </li>
+          <li>
+            <button class="sidebar-menu-btn" id="menu-btn-feedback" data-view="feedback">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-dasharray="none" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              Customer Feedback
+            </button>
+          </li>
+          <li>
+            <button class="sidebar-menu-btn" id="menu-btn-notifications" data-view="notifications">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              Notification Log
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div>v1.0.0 SaaS Product</div>
+        <div style="font-size:0.7rem;margin-top:4px;">Connected to SQLite</div>
+      </div>
+    </aside>
+
+    <!-- Right Content Area -->
+    <div class="admin-main">
+
+      <!-- Admin Top Header -->
+      <header class="admin-header">
+        <div>
+          <h1 style="font-size: 1.5rem; font-weight: 700;">Gobites by Gopal Control Center</h1>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Real-time tracking of restaurant operations.</p>
+        </div>
+
+        <div class="live-indicator">
+          <div class="pulse-dot"></div>
+          <span>Connected Live (SSE)</span>
+        </div>
+      </header>
+
+      <!-- Dashboard View -->
+      <section class="admin-content-view" id="view-dashboard">
+        
+        <!-- KPI Metrics Ribbon -->
+        <div class="metrics-grid" id="kpi-ribbon-container">
+          <div class="metric-card accent-orange">
+            <span class="metric-title">Today's Revenue</span>
+            <span class="metric-value" id="kpi-revenue">₹0.00</span>
+            <span class="metric-sub">Excluding cancelled orders</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Total Orders Today</span>
+            <span class="metric-value" id="kpi-orders-count">0</span>
+            <span class="metric-sub">All incoming items</span>
+          </div>
+          <div class="metric-card accent-blue">
+            <span class="metric-title">Active Preparing</span>
+            <span class="metric-value" id="kpi-active-preparing">0</span>
+            <span class="metric-sub">Currently in the kitchen</span>
+          </div>
+          <div class="metric-card accent-green">
+            <span class="metric-title">Top Selling Dish</span>
+            <span class="metric-value" id="kpi-top-food" style="font-size:1.15rem;font-weight:700;margin-top:8px;">Loading...</span>
+            <span class="metric-sub">Highest quantity ordered</span>
+          </div>
+        </div>
+
+        <!-- Orders Queue Split Pane -->
+        <div class="queue-layout">
+          
+          <!-- Left: Orders List -->
+          <div class="queue-panel">
+            <div class="panel-header">
+              <span class="panel-title">Incoming Orders Queue</span>
+              
+              <!-- Filters -->
+              <div class="filter-row" id="order-status-tabs">
+                <button class="filter-btn active" data-status="all">All Orders</button>
+                <button class="filter-btn" data-status="Pending">Pending</button>
+                <button class="filter-btn" data-status="Preparing">Preparing</button>
+                <button class="filter-btn" data-status="Ready">Ready</button>
+                <button class="filter-btn" data-status="Completed">Completed</button>
+              </div>
+
+              <!-- Search Bar -->
+              <div style="position:relative;">
+                <input type="text" id="admin-order-search" class="menu-search-input" style="max-width:100%;" placeholder="Search by Order ID, Name, or Phone...">
+              </div>
+            </div>
+
+            <!-- Orders Scroll Container -->
+            <div class="orders-list-scroll" id="admin-orders-queue">
+              <div style="text-align:center;padding:40px;color:var(--text-muted)">Loading order queue...</div>
+            </div>
+          </div>
+
+          <!-- Right: Order Inspector -->
+          <div class="inspector-panel" id="order-inspector-panel">
+            <!-- Filled Dynamically -->
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-muted);text-align:center;">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:16px;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <p>Select an order from the queue<br>to inspect details and manage status.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Reports View -->
+      <section class="admin-content-view" id="view-reports" style="display: none;">
+        <div class="report-controls">
+          <button class="filter-btn active" id="btn-report-daily">Daily Sales</button>
+          <button class="filter-btn" id="btn-report-weekly">Weekly Performance</button>
+          <button class="filter-btn" id="btn-report-monthly">Monthly Growth</button>
+        </div>
+
+        <div class="metrics-grid" id="report-summary-cards">
+          <!-- Summaries filled based on selection -->
+        </div>
+
+        <div style="background: var(--bg-surface); border:1px solid var(--border-color); border-radius: var(--border-radius-lg); padding:24px; margin-top:24px;">
+          <h3 style="margin-bottom:16px;">Best Selling Foods in Period</h3>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Food Item</th>
+                  <th>Category</th>
+                  <th>Quantity Sold</th>
+                  <th>Total Revenue Generated</th>
+                </tr>
+              </thead>
+              <tbody id="report-foods-table-body">
+                <tr>
+                  <td colspan="4" style="text-align:center;color:var(--text-muted);">Select a period to load.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Charts Container -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3 style="margin-bottom:16px; font-size:1rem; text-transform:uppercase; color:var(--text-muted);">Sales Revenue (INR)</h3>
+            <div class="chart-container">
+              <canvas id="revenue-chart-canvas"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3 style="margin-bottom:16px; font-size:1rem; text-transform:uppercase; color:var(--text-muted);">Orders Volume</h3>
+            <div class="chart-container">
+              <canvas id="orders-chart-canvas"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notification Log View -->
+      <section class="admin-content-view" id="view-notifications" style="display: none;">
+        <div style="margin-bottom: 24px;">
+          <h2>Notification System Audit Log</h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Verification logs of outgoing messages to WhatsApp and SMS channels.</p>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Type</th>
+                <th>Channel</th>
+                <th>Recipient</th>
+                <th>Message Content</th>
+                <th>Delivery Status</th>
+              </tr>
+            </thead>
+            <tbody id="notifications-table-body">
+              <tr>
+                <td colspan="6" style="text-align:center;color:var(--text-muted);">Loading logs...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Menu Management View -->
+      <section class="admin-content-view" id="view-menu" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <h2>Menu Management</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Add, edit, delete, or toggle availability of dishes.</p>
+          </div>
+          <button class="checkout-btn" id="admin-add-item-btn" style="padding: 10px 20px; width: auto;">➕ Add Menu Item</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock Status</th>
+                <th>Visibility</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-menu-table-body">
+              <tr>
+                <td colspan="7" style="text-align:center;color:var(--text-muted);">Loading menu items...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Customer Feedback View -->
+      <section class="admin-content-view" id="view-feedback" style="display: none;">
+        <div style="margin-bottom: 24px;">
+          <h2>Customer Feedback Section</h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Analyze customer reviews and average ratings.</p>
+        </div>
+
+        <!-- Feedback KPI Cards -->
+        <div class="metrics-grid" style="margin-bottom: 24px;">
+          <div class="metric-card accent-orange">
+            <span class="metric-title">⭐ Average Rating</span>
+            <span class="metric-value" id="feedback-avg-rating">0.0</span>
+            <span class="metric-sub">Out of 5.0 stars</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">📝 Total Reviews</span>
+            <span class="metric-value" id="feedback-total-reviews">0</span>
+            <span class="metric-sub">Lifetime feedback submissions</span>
+          </div>
+          <div class="metric-card accent-blue">
+            <span class="metric-title">❤️ Most Loved Item</span>
+            <span class="metric-value" id="feedback-loved-item" style="font-size:1.1rem; font-weight:700; margin-top:8px;">N/A</span>
+            <span class="metric-sub">Highly rated dishes</span>
+          </div>
+        </div>
+
+        <!-- Complaints Analysis -->
+        <div style="background: var(--bg-surface); border:1px solid var(--border-color); border-radius: var(--border-radius-lg); padding:24px; margin-bottom:24px;">
+          <h3 style="margin-bottom:16px;">Most Common Complaints (Low Ratings)</h3>
+          <div class="complaints-bar-grid" style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 150px; background: var(--bg-base); padding: 16px; border-radius: var(--border-radius-md); border: 1px solid var(--border-color);">
+              <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Taste Issues</div>
+              <div style="font-size: 1.8rem; font-weight: 700; margin-top: 5px; color: var(--primary);" id="complaint-taste-count">0</div>
+            </div>
+            <div style="flex: 1; min-width: 150px; background: var(--bg-base); padding: 16px; border-radius: var(--border-radius-md); border: 1px solid var(--border-color);">
+              <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Service Delays</div>
+              <div style="font-size: 1.8rem; font-weight: 700; margin-top: 5px; color: hsl(210, 100%, 60%);" id="complaint-service-count">0</div>
+            </div>
+            <div style="flex: 1; min-width: 150px; background: var(--bg-base); padding: 16px; border-radius: var(--border-radius-md); border: 1px solid var(--border-color);">
+              <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Quality Problems</div>
+              <div style="font-size: 1.8rem; font-weight: 700; margin-top: 5px; color: var(--danger);" id="complaint-quality-count">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Latest Reviews Table -->
+        <div style="background: var(--bg-surface); border:1px solid var(--border-color); border-radius: var(--border-radius-lg); padding:24px;">
+          <h3 style="margin-bottom:16px;">Latest Reviews</h3>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Rating</th>
+                  <th>Feedback tags</th>
+                  <th>Comment</th>
+                </tr>
+              </thead>
+              <tbody id="feedback-reviews-table-body">
+                <tr>
+                  <td colspan="5" style="text-align:center;color:var(--text-muted);">No reviews submitted yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Rejection Reason Modal -->
+  <div class="modal-overlay" id="reject-reason-modal" style="display:none;">
+    <div class="modal-content" style="max-width: 400px; width: 90%;">
+      <div class="modal-body">
+        <h3 class="modal-title" style="margin-bottom: 12px;">Reject Order</h3>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">Specify the reason for cancelling this order. This will be shown to the customer.</p>
+        <form id="reject-reason-form">
+          <div class="form-group">
+            <label class="form-label" for="reject-reason-input">Reason *</label>
+            <input type="text" class="form-input" id="reject-reason-input" required placeholder="e.g. Kitchen closed, Out of ingredients, etc.">
+          </div>
+          <div class="form-submit-row" style="margin-top: 20px;">
+            <button type="button" class="btn-secondary" id="reject-modal-cancel-btn">Cancel</button>
+            <button type="submit" class="checkout-btn" style="background: var(--danger); width: auto;">Reject Order</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu Add/Edit Modal -->
+  <div class="modal-overlay" id="menu-item-modal" style="display:none;">
+    <div class="modal-content" style="max-width: 480px; width: 90%;">
+      <div class="modal-body">
+        <h3 class="modal-title" id="menu-modal-title" style="margin-bottom: 16px;">Add Menu Item</h3>
+        <form id="menu-item-form">
+          <input type="hidden" id="menu-item-id">
+          
+          <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+            <label class="form-label" for="menu-item-name">Item Name *</label>
+            <input type="text" class="form-input" id="menu-item-name" required placeholder="e.g. Veg Noodles">
+          </div>
+          
+          <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+            <label class="form-label" for="menu-item-category">Category *</label>
+            <select class="form-input" id="menu-item-category" required>
+              <option value="Noodles">Noodles</option>
+              <option value="Fried Rice">Fried Rice</option>
+              <option value="Chinese Starters">Chinese Starters</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+            <label class="form-label" for="menu-item-price">Price (₹) *</label>
+            <input type="number" class="form-input" id="menu-item-price" required min="0" step="1" placeholder="e.g. 100">
+          </div>
+
+          <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+            <label class="form-label" for="menu-item-desc">Description</label>
+            <textarea class="form-input" id="menu-item-desc" rows="2" placeholder="Describe the item..."></textarea>
+          </div>
+
+          <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+            <label class="form-label">Item Image</label>
+            <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px;">
+              <img id="menu-item-img-preview" src="" style="width: 60px; height: 60px; border-radius: var(--border-radius-sm); object-fit: cover; background: var(--bg-base); border: 1px solid var(--border-color); display: none;">
+              <div style="flex-grow: 1;">
+                <input type="file" id="menu-item-file-input" accept="image/*" style="display: none;">
+                <button type="button" class="btn-secondary" id="menu-item-upload-trigger" style="padding: 6px 12px; font-size: 0.85rem; width: auto;">Upload Image</button>
+                <span id="menu-item-upload-status" style="font-size: 0.8rem; color: var(--text-muted); margin-left: 8px;"></span>
+              </div>
+            </div>
+            <input type="text" class="form-input" id="menu-item-img-url" placeholder="Or enter image URL (e.g. /assets/item.svg)">
+          </div>
+
+          <div class="form-submit-row" style="margin-top: 24px;">
+            <button type="button" class="btn-secondary" id="menu-modal-cancel-btn">Cancel</button>
+            <button type="submit" class="checkout-btn" id="menu-modal-save-btn" style="width: auto;">Save Item</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

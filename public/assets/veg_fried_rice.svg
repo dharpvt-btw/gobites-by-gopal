@@ -1,0 +1,30 @@
+<svg width="350" height="200" viewBox="0 0 350 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark Obsidian slate card background -->
+  <rect width="350" height="200" rx="14" fill="#0A0C10"/>
+  
+  <!-- Subtle plate background glow -->
+  <circle cx="175" cy="100" r="80" fill="#4CAF50" opacity="0.08" filter="blur(20px)"/>
+  
+  <!-- Outer Rim of Plate -->
+  <circle cx="175" cy="100" r="70" stroke="#1F232D" stroke-width="1.5"/>
+  <circle cx="175" cy="100" r="64" stroke="#4CAF50" stroke-dasharray="6,4" stroke-width="1" opacity="0.3"/>
+  
+  <!-- Premium inner plate surface -->
+  <circle cx="175" cy="100" r="54" fill="#141722" stroke="#1F232D" stroke-width="1"/>
+
+  <!-- Steaming details -->
+  <path d="M165 60 C 162 50, 168 45, 165 35" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.2"/>
+  <path d="M175 57 C 172 48, 178 43, 175 33" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+  <path d="M185 60 C 182 50, 188 45, 185 35" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.2"/>
+  
+  <!-- Main Food Visual representation using high fidelity vector style text/emoji -->
+  <circle cx="175" cy="100" r="38" fill="#4CAF50" opacity="0.1"/>
+  <text x="175" y="114" font-family="'Outfit', sans-serif" font-size="42" text-anchor="middle" dominant-baseline="middle">🍚</text>
+
+  <!-- Dish Title -->
+  <rect x="0" y="160" width="350" height="40" fill="rgba(10, 12, 16, 0.85)" rx="0"/>
+  <text x="175" y="182" font-family="'Outfit', sans-serif" font-size="13" font-weight="700" fill="#E2E8F0" letter-spacing="0.05em" text-anchor="middle">VEG FRIED RICE</text>
+  
+  <!-- Category Tag line -->
+  <circle cx="15" cy="15" r="4" fill="#4CAF50"/>
+</svg>

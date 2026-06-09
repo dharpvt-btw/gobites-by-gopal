@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gobites by Gopal - Fast Food Ordering</title>
+  <meta name="description" content="Order fresh, hot Fried Rice, Noodles, and Biryani. Real-time preparation tracking and instant owner notifications.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header>
+    <a href="/" class="brand-logo" id="header-logo">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.5 10.5C17.5 13.5355 15.0355 16 12 16C8.96447 16 6.5 13.5355 6.5 10.5C6.5 7.46447 12 2 12 2C12 2 17.5 7.46447 17.5 10.5Z" fill="#FF6B00"/>
+        <path d="M14.5 12C14.5 13.3807 13.3807 14.5 12 14.5C10.6193 14.5 9.5 13.3807 9.5 12C9.5 10.6193 12 7 12 7C12 7 14.5 10.6193 14.5 12Z" fill="#FF9900"/>
+      </svg>
+      Gobites<span>by Gopal</span>
+    </a>
+
+    <div class="nav-actions">
+      <select id="language-switcher">
+        <option value="en">English</option>
+        <option value="te">తెలుగు (Telugu)</option>
+      </select>
+      <span id="store-status-badge" class="badge badge-closed">Checking...</span>
+      <button class="cart-trigger-btn" id="cart-trigger" aria-label="Open Cart">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <span>Cart</span>
+        <span class="cart-count" id="cart-qty-indicator">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main id="app-container">
+
+    <!-- Active Tracking Screen (Shown when customer has a pending order) -->
+    <section id="tracking-view" class="menu-section" style="display: none;">
+      <div class="tracking-container glass-panel">
+        <div class="tracking-header">
+          <div class="tracking-success-icon">✓</div>
+          <h2>Order Successfully Placed!</h2>
+          <p>Thank you for choosing Gobites by Gopal. Your order is being processed.</p>
+          <div class="order-num-badge" id="tracking-order-id">Order #----</div>
+          <div class="order-status-badge-custom" id="tracking-order-status" style="margin-top: 10px;">Pending Approval</div>
+        </div>
+
+        <div class="timeline">
+          <!-- Step 1: Pending -->
+          <div class="timeline-step" id="step-pending">
+            <div class="timeline-dot">1</div>
+            <div class="timeline-step-title">Order Received</div>
+            <div class="timeline-step-desc">Awaiting kitchen acceptance.</div>
+          </div>
+          <!-- Step 2: Preparing -->
+          <div class="timeline-step" id="step-preparing">
+            <div class="timeline-dot">2</div>
+            <div class="timeline-step-title">Preparing Food</div>
+            <div class="timeline-step-desc">Our chefs are preparing your delicious meal.</div>
+          </div>
+          <!-- Step 3: Ready -->
+          <div class="timeline-step" id="step-ready">
+            <div class="timeline-dot">3</div>
+            <div class="timeline-step-title">Ready for Pickup</div>
+            <div class="timeline-step-desc">Your order is packed and ready to go!</div>
+          </div>
+          <!-- Step 4: Completed -->
+          <div class="timeline-step" id="step-completed">
+            <div class="timeline-dot">4</div>
+            <div class="timeline-step-title">Picked Up</div>
+            <div class="timeline-step-desc">Order completed. Hope to serve you again!</div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 24px; margin-top: 24px;">
+          <h3 style="font-size: 1.1rem; margin-bottom: 12px;">Order Summary</h3>
+          <div id="tracking-items-list" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
+            <!-- Items filled dynamically -->
+          </div>
+          <div style="display: flex; justify-content: space-between; border-top: 1px dotted var(--border-color); padding-top: 12px; margin-top: 12px; font-weight: 700;">
+            <span>Total Paid</span>
+            <span id="tracking-total-price">₹0.00</span>
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: space-between; background: var(--primary-light); padding: 12px 16px; border-radius: var(--border-radius-md); margin-top: 20px; font-size: 0.9rem; align-items: center;">
+            <div>
+              <span style="color: var(--text-secondary); display: block; font-size: 0.75rem; text-transform: uppercase;">Estimated Wait Time</span>
+              <strong id="tracking-est-time" style="font-size: 1rem; color: var(--primary);">-- Minutes</strong>
+            </div>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">Updates in real time</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+          <button class="btn-whatsapp" id="whatsapp-confirm-btn" style="width: 100%; margin-bottom: 12px;">Confirm Order on WhatsApp</button>
+          <button class="btn-secondary" id="track-back-to-menu-btn" style="width: 100%;">Order Something Else</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Home/Browse View (Default) -->
+    <div id="browse-view">
+      <!-- Hero Banner -->
+      <section class="hero-section">
+        <div class="hero-content">
+          <div class="hero-visual-container">
+            <div class="steam-container">
+              <span class="steam-line" style="--i:1;"></span>
+              <span class="steam-line" style="--i:2;"></span>
+              <span class="steam-line" style="--i:3;"></span>
+            </div>
+            <!-- Steaming Bowl SVG -->
+            <svg class="fried-rice-svg" width="90" height="90" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 50C20 66.5685 33.4315 80 50 80C66.5685 80 80 66.5685 80 50H20Z" fill="#141722" stroke="var(--primary)" stroke-width="3"/>
+              <circle cx="35" cy="45" r="3" fill="var(--gold)"/>
+              <circle cx="45" cy="42" r="3.5" fill="var(--primary)"/>
+              <circle cx="55" cy="46" r="3" fill="var(--success)"/>
+              <circle cx="65" cy="43" r="3" fill="var(--gold)"/>
+              <path d="M30 50C35 46 45 46 50 50" stroke="var(--gold)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M50 50C55 46 65 46 70 50" stroke="var(--gold)" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <p class="hero-subtitle">Authentic • Delicious • Fresh</p>
+          <h1 class="hero-title">Experience Real Taste at Gobites by Gopal</h1>
+          <p class="hero-desc">Taste our signature recipes. Order online and receive real-time prep alerts.</p>
+          <button class="hero-cta-btn" id="hero-action-btn">Browse Food Menu</button>
+        </div>
+      </section>
+
+      <!-- Timings / Info Bar -->
+      <section class="info-bar">
+        <div class="info-item">
+          <div class="info-icon">🕒</div>
+          <div>
+            <div class="info-label">Open Hours</div>
+            <div class="info-value">12:00 PM - 9:30 PM</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">📞</div>
+          <div>
+            <div class="info-label">Call Kitchen</div>
+            <div class="info-value"><a href="tel:+9392119020">+91 93921 19020</a></div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">💬</div>
+          <div>
+            <div class="info-label">WhatsApp Support</div>
+            <div class="info-value"><a href="https://wa.me/9392119020" target="_blank">+91 93921 19020</a></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Menu Section -->
+      <section class="menu-section" id="menu-browsing">
+        <div class="menu-header">
+          <div class="menu-title-area">
+            <h2>Explore Our Menu</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Freshly made signature wok dishes and drinks.</p>
+          </div>
+          <div class="menu-search-wrapper">
+            <svg class="search-icon-svg" viewBox="0 0 24 24">
+              <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+            <input type="text" class="menu-search-input" id="menu-search" placeholder="Search fried rice, noodles...">
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="category-tabs" id="menu-categories">
+          <button class="tab-btn active" data-category="all">All Items</button>
+          <button class="tab-btn" data-category="Noodles">Noodles</button>
+          <button class="tab-btn" data-category="Fried Rice">Fried Rice</button>
+          <button class="tab-btn" data-category="Chinese Starters">Chinese Starters</button>
+        </div>
+
+        <!-- Food Grid -->
+        <div class="food-grid" id="food-items-container">
+          <!-- Food Cards populated dynamically -->
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+            Loading menu items...
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- Sliding Cart Drawer -->
+  <div class="cart-backdrop" id="cart-drawer-backdrop"></div>
+  <div class="cart-drawer" id="cart-drawer-panel">
+    <div class="cart-header">
+      <h3 style="font-family: var(--font-display); font-size: 1.25rem;">Your Order</h3>
+      <button class="close-drawer-btn" id="close-cart-btn" aria-label="Close Cart">&times;</button>
+    </div>
+
+    <!-- Items List -->
+    <div class="cart-items-list" id="cart-items-wrapper">
+      <!-- Injected by JS -->
+    </div>
+
+    <!-- Footer -->
+    <div class="cart-footer">
+      <div class="cart-summary-row">
+        <span style="color: var(--text-secondary);">Subtotal</span>
+        <span id="cart-subtotal">₹0.00</span>
+      </div>
+      <div class="cart-total-row">
+        <span>Total</span>
+        <span id="cart-total-amount">₹0.00</span>
+      </div>
+      <button class="checkout-btn" id="proceed-to-checkout-btn">Checkout Order</button>
+    </div>
+  </div>
+
+  <!-- Checkout Form Modal Overlay -->
+  <div class="modal-overlay" id="checkout-modal-overlay">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h3 class="modal-title">Checkout Details</h3>
+        <form id="checkout-details-form">
+          <div class="form-group">
+            <label class="form-label" for="customer-name-field">Full Name *</label>
+            <input type="text" class="form-input" id="customer-name-field" required placeholder="e.g. Ramesh Kumar">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="customer-phone-field">Phone Number *</label>
+            <input type="tel" class="form-input" id="customer-phone-field" required placeholder="e.g. 9876543210" pattern="[0-9]{10}">
+            <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; display: block;">10-digit mobile number</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="customer-notes-field">Special Instructions (Optional)</label>
+            <textarea class="form-input" id="customer-notes-field" rows="2" placeholder="e.g. Extra spicy, no onions, etc."></textarea>
+          </div>
+
+          <div style="background: var(--bg-base); padding: 14px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); margin: 20px 0;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+              <span>Total Price (incl. tax)</span>
+              <strong id="checkout-total-price">₹0.00</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+              <span>Estimated Prep Time</span>
+              <strong id="checkout-est-time" style="color: var(--primary);">15 Mins</strong>
+            </div>
+          </div>
+
+          <div class="form-submit-row">
+            <button type="button" class="btn-secondary" id="cancel-checkout-btn">Cancel</button>
+            <button type="submit" class="checkout-btn" style="flex-grow: 2;">Place Order</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <h3 style="font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 12px; color: var(--text-primary);">Gobites by Gopal</h3>
+      <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 20px; font-size: 0.9rem;">Experience premium fast food at Gobites by Gopal. Order online, pick up fresh, and enjoy our fast, fresh, spicy meals.</p>
+      
+      <div class="footer-socials">
+        <a href="tel:+9392119020" class="social-btn">📞 Call Kitchen</a>
+        <a href="https://wa.me/9392119020" class="social-btn whatsapp-green">💬 Chat on WhatsApp</a>
+      </div>
+      
+      <div style="border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: 30px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted);">
+        <span>© 2026 Gobites by Gopal. All Rights Reserved.</span>
+        <span>Made with ❤️ for your fast‑food cravings.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Feedback Modal Overlay -->
+  <div class="modal-overlay" id="feedback-modal-overlay" style="display: none;">
+    <div class="modal-content feedback-modal" style="max-width: 420px; width: 90%;">
+      <div class="modal-body" style="text-align: center;">
+        <h3 class="modal-title" style="margin-bottom: 8px;">⭐⭐⭐⭐⭐</h3>
+        <h3 class="modal-title" style="margin-bottom: 12px; font-size: 1.3rem;">How was your food?</h3>
+        <form id="feedback-form">
+          <div class="star-rating-container" style="display: flex; justify-content: center; gap: 12px; margin: 15px 0; font-size: 2.2rem; cursor: pointer; color: var(--text-muted);">
+            <span class="star-btn" data-rating="1">☆</span>
+            <span class="star-btn" data-rating="2">☆</span>
+            <span class="star-btn" data-rating="3">☆</span>
+            <span class="star-btn" data-rating="4">☆</span>
+            <span class="star-btn" data-rating="5">☆</span>
+          </div>
+          
+          <p class="form-label" style="margin-bottom: 10px; font-size: 0.9rem;">Options:</p>
+          <div class="feedback-tags-grid" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <button type="button" class="feedback-tag-btn" data-tag="taste">😋 Taste</button>
+            <button type="button" class="feedback-tag-btn" data-tag="service">⚡ Service</button>
+            <button type="button" class="feedback-tag-btn" data-tag="quality">🍜 Food Quality</button>
+          </div>
+
+          <div class="form-group" style="text-align: left; margin-top: 15px;">
+            <label class="form-label" for="feedback-comment-field">Additional Comment</label>
+            <textarea class="form-input" id="feedback-comment-field" rows="2" placeholder="Tell us more..."></textarea>
+          </div>
+
+          <div class="form-submit-row" style="margin-top: 20px;">
+            <button type="submit" class="checkout-btn" style="width: 100%;">Submit Feedback</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
